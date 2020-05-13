@@ -1,1 +1,52 @@
+server:
+  port: 9000
+  max-http-header-size: 10240
+  servlet:
+    context-path: /wxpay/demo
+  tomcat:
+    uri-encoding: UTF-8
+    max-connections: 10000 # Maximum number of connections that the server accepts and processes at any given time.
+    max-http-post-size: 2MB # Maximum size, in bytes, of the HTTP post content.
+    max-threads: 200 # Maximum number of worker threads.
+    min-spare-threads: 10 # Minimum number of worker threads.
+    accesslog:
+      enabled: false
+      directory: log
+    basedir: .
+spring:
+  profiles:
+    active: dev
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+    location: /data/upload_tmp
+  servlet:
+    multipart:
+      max-request-size: 100MB
+      max-file-size: 100MB
+  messages:
+    encoding: utf-8
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+#日志文件
+logging:
+  config: classpath:logback-spring.xml
 
+#微信配置信息
+wx:
+  #小程序appId
+  appId: 替换成自己的小程序id
+  #小程序secret
+  secret: 替换成自己的secret
+  #商户id
+  mchId: 替换成自己的商户id
+  #商户key
+  mchKey: 替换成自己的商户key
+  #微信支付回调接口
+  notifyUrl: 替换成自己的回调接口路径
+  #企业红包路径
+  wxPayUrl: https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers
+  #企业付款证书路径
+  payFileUrl: payFile/apiclient_cert.p12

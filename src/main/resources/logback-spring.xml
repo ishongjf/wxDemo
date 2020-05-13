@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>
+
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+    <jmxConfigurator/>
+
+    <!-- 文件输出格式 -->
+    <property name="PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{100}: %msg%n"/>
+    <!-- 文件路径 -->
+    <property name="LOG_FILE_PATH" value="./log/wxpay"/>
+    <!-- 文件名 -->
+    <property name="LOG_FILE_BASE_NAME" value="wxpay.log"/>
+
+    <!--负责写日志  以滚动记录的方式(先将日志记录到指定文件,当符合某个条件时,再将日志记录到其他文件) -->
+    <appender name="dailyRollingFileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${LOG_FILE_PATH}/${LOG_FILE_BASE_NAME}</File>
+
+        <!--根据不同的class指定不同的条件   TimeBasedRollingPolicy滚动策略表示
+            根据时间来制定滚动策略  %d(依照java.text.SimpleDateFormat) 用来设置滚动的时间间隔-->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 文件名称 -->
+            <fileNamePattern>${LOG_FILE_PATH}/${LOG_FILE_BASE_NAME}.%d{yyyy-MM-dd}</fileNamePattern>
+            <!-- 文件最大保存历史时间 -->
+            <MaxHistory>10</MaxHistory>
+        </rollingPolicy>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>${PATTERN}</pattern>
+        </layout>
+    </appender>
+
+    <appender name="SYS_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${LOG_FILE_PATH}/ydsError.log</File>
+        <append>true</append>
+        <!--过滤器,只打ERROR级别的日志-->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>WARN</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FILE_PATH}/ydsError.log.%d</fileNamePattern>
+            <maxHistory>10</maxHistory>
+        </rollingPolicy>
+
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <root level="debug">
+        <appender-ref ref="SYS_ERROR" />
+    </root>
+
+    <root level="debug">
+        <appender-ref ref="dailyRollingFileAppender"/>
+    </root>
+
+    <!--添加统计分析的日志-->
+    <appender name="outLogInterceptor" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FILE_PATH}/analyzer.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <MaxHistory>30</MaxHistory>
+        </rollingPolicy>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>${PATTERN}</pattern>
+        </layout>
+    </appender>
+
+    <springProfile name="test">
+        <root level="debug">
+            <appender-ref ref="SYS_ERROR" />
+        </root>
+        <root level="debug">
+            <appender-ref ref="dailyRollingFileAppender"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="local">
+        <root level="DEBUG">
+            <appender-ref ref="SYS_ERROR" />
+        </root>
+        <root level="DEBUG">
+            <appender-ref ref="dailyRollingFileAppender"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="dev">
+        <root level="WARN">
+            <appender-ref ref="SYS_ERROR" />
+        </root>
+        <root level="DEBUG">
+            <appender-ref ref="dailyRollingFileAppender"/>
+        </root>
+    </springProfile>
+    <springProfile name="online">
+        <root level="info">
+            <appender-ref ref="SYS_ERROR" />
+        </root>
+        <root level="info">
+            <appender-ref ref="dailyRollingFileAppender"/>
+        </root>
+    </springProfile>
+</configuration>
